@@ -6,17 +6,19 @@ import type { MaterialGetResponse, PageDto } from "@/features/materials/model/ty
 import { Loader } from "@/shared/ui/Loader";
 import { MaterialsList } from "@/features/materials/ui/MaterialList";
 import { Pagination } from "@/shared/ui/Pagination";
+import { ErrorLoad } from "@/shared/ui/ErrorLoad";
 
 export function MaterialPage() {
+
+    const CURRENT_USER_ID = 1; // TODO: заменить на реальный ID текущего пользователя из контекста аутентификации
+
     const menuItems: MenuItem[] = [
         { label: "Главная", to: "/" },
         { label: "Тесты", to: "/tests" },
         { label: "Материалы", to: "/materials" },
-        { label: "Результаты", to: "/results" },
+        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
         { label: "Профиль", to: "/profile" },
-    ];
-
-    const CURRENT_USER_ID = 1; // TODO: заменить на реальный ID текущего пользователя из контекста аутентификации
+    ]
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [pageNumber, setPageNumber] = useState(0)
@@ -42,7 +44,7 @@ export function MaterialPage() {
                 setData(response);
             } catch (e) {
                 console.error("Ошибка при загрузке материалов", e);
-                setError("Не удалось загрузить материалы");
+                setError("Не удалось загрузить материалы. Пожалуйста, попробуйте позже.");
             } finally {
                 setIsLoading(false);
             }
@@ -80,9 +82,10 @@ export function MaterialPage() {
                         {isLoading && <Loader />}
 
                         {!isLoading && error && (
-                            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-                                {error}
-                            </div>
+                            // <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                            //     {error}
+                            // </div>
+                            <ErrorLoad message={error} />
                         )}
 
                         {!isLoading && !error && (

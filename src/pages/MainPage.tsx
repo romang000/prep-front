@@ -3,18 +3,21 @@ import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
-const menuItems: MenuItem[] = [
-    { label: "Главная", to: "/" },
-    { label: "Тесты", to: "/tests" },
-    { label: "Материалы", to: "/materials" },
-    { label: "Результаты", to: "/results" },
-    { label: "Профиль", to: "/profile" },
-]
-
 export function MainPage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+    const CURRENT_USER_ID = 1;
+
+    const menuItems: MenuItem[] = [
+        { label: "Главная", to: "/" },
+        { label: "Тесты", to: "/tests" },
+        { label: "Материалы", to: "/materials" },
+        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
+        { label: "Профиль", to: "/profile" },
+    ]
+
     return (
+
         <div className="min-h-screen bg-slate-50">
             <Sidebar
                 isOpen={isMenuOpen}
@@ -81,10 +84,10 @@ export function MainPage() {
                             какие темы нужно повторить в первую очередь.
                         </p>
                         <Link
-                            to="/results"
+                            to={`/statistics/users/${CURRENT_USER_ID}`} // вот тут
                             className="mt-4 inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
                         >
-                            Посмотреть результаты
+                            Посмотреть статистику по темам
                         </Link>
                     </div>
                 </div>

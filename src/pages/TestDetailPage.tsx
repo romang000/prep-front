@@ -16,7 +16,7 @@ import type { TestResult } from "@/features/tests/model/types"
 import { TestResultCard } from "@/features/tests/ui/TestResultCard"
 
 export function TestDetailPage() {
-    const TEMPORARY_USER_ID = 1
+    const CURRENT_USER_ID = 1
 
     const { id } = useParams<{ id: string }>()
     const testId = Number(id)
@@ -165,7 +165,7 @@ export function TestDetailPage() {
 
         try {
             await createUserQuestion({
-                userId: TEMPORARY_USER_ID,
+                userId: CURRENT_USER_ID,
                 questionId: question.id,
                 answerId: answerId,
             })
@@ -265,7 +265,7 @@ export function TestDetailPage() {
     const handleRetry = async () => {
         try {
             const response = await createUserTestSession({
-                userId: TEMPORARY_USER_ID,
+                userId: CURRENT_USER_ID,
                 testId: testId,
             })
 

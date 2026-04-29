@@ -1,83 +1,92 @@
 import { getTests } from "@/features/tests/api/getTests";
 import type { PageDto, TestResponse } from "@/features/tests/model/types";
 import { TestsList } from "@/features/tests/ui/TestsList";
+import { ErrorLoad } from "@/shared/ui/ErrorLoad";
 import { Header } from "@/shared/ui/Header";
 import { Loader } from "@/shared/ui/Loader";
 import { Pagination } from "@/shared/ui/Pagination";
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
+import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar";
 import { useEffect, useState } from "react";
 
-const menuItems: MenuItem[] = [
-    { label: "Главная", to: "/" },
-    { label: "Тесты", to: "/tests" },
-    { label: "Материалы", to: "/materials" },
-    { label: "Результаты", to: "/results" },
-    { label: "Профиль", to: "/profile" },
-]
-
 export function TestsPage() {
-    const [pageNumber, setPageNumber] = useState(0)
-    const [pageSize] = useState(6)
+    const CURRENT_USER_ID = 1
 
-    const [data, setData] = useState<PageDto<TestResponse> | null>(null)
+    const menuItems: MenuItem[] = [
+        { label: "Главная", to: "/" },
+        { label: "Тесты", to: "/tests" },
+        { label: "Материалы", to: "/materials" },
+        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
+        { label: "Профиль", to: "/profile" },
+    ]
 
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [pageNumber, setPageNumber] = useState(0);
+    const [pageSize] = useState(6);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [data, setData] = useState<PageDto<TestResponse> | null>(null);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         async function loadTests() {
             try {
-                setIsLoading(true)
-                setError(null)
+                setIsLoading(true);
+                setError(null);
 
-                const response = await getTests({ pageNumber, pageSize })
-                setData(response)
+                const response = await getTests({ pageNumber, pageSize });
+                setData(response);
             } catch (e) {
-                setError(e instanceof Error ? e.message : "Неизвестная ошибка")
+                console.error("Ошибка при загрузке тестов", e);
+                setError("Не удалось загрузить тесты. Пожалуйста, попробуйте позже.");
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
         }
 
-        loadTests()
-    }, [pageNumber, pageSize])
+        loadTests();
+    }, [pageNumber, pageSize]);
 
-    const tests = data?.content ?? []
+    const tests = data?.content ?? [];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-100">
             <Sidebar
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
                 items={menuItems}
             />
+
             <div className="mx-auto max-w-6xl px-6 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <button
                         type="button"
                         onClick={() => setIsMenuOpen(true)}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100"
+                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                     >
                         ☰ Меню
                     </button>
                 </div>
 
-                <Header
-                    title="Список тестов"
-                    description="Все доступные тесты для подготовки к собеседованиям. Выбирайте и начинайте практиковаться прямо сейчас!"
-                />
+                <div className="rounded-[28px] bg-slate-50 p-8 shadow-sm">
+                    <Header
+                        title="Список тестов"
+                        description="Все доступные тесты для подготовки к собеседованиям. Выбирайте и начинайте практиковаться прямо сейчас!"
+                    />
 
-                {isLoading && <Loader />}
+                    <div className="mt-8">
+                        {isLoading && <Loader />}
 
-                {!isLoading && error && (
-                    <div className="rounded-2xl border border-red-300 bg-red-50 p-5 text-center text-red-500">
-                        Ошибка загрузки тестов: {error}
+                        {!isLoading && error && (
+                            <ErrorLoad message={error} />
+                        )}
+
+                        {!isLoading && !error && (
+                            <TestsList tests={tests} />
+                        )}
                     </div>
-                )}
-
-                {!isLoading && !error && <TestsList tests={tests} />}
+                </div>
 
                 {!isLoading && !error && data && (
                     <Pagination
@@ -95,5 +104,5 @@ export function TestsPage() {
                 )}
             </div>
         </div>
-    )
+    );
 }
