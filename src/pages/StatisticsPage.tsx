@@ -12,6 +12,7 @@ import { getAllUserTopicStats } from "@/features/statistic/api/getUserTopicStats
 import { getUserTopicStatsByTopic } from "@/features/statistic/api/getUserTopicStatsByTopic"
 import { UserTopicStatsList } from "@/features/statistic/ui/UserTopicStatsList"
 import { UserSubtopicStatsList } from "@/features/statistic/ui/UserSubtopicStatsList"
+import { RecommendationPanel } from "@/features/recommendation/ui/RecommendationPanel"
 
 export function StatisticsPage() {
     const { id } = useParams()
@@ -26,6 +27,7 @@ export function StatisticsPage() {
     ]
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false)
 
     const [topicStats, setTopicStats] = useState<TopicStatisticsResponse[]>([])
     const [subtopicStats, setSubtopicStats] = useState<SubtopicStatisticsResponse[]>([])
@@ -99,6 +101,17 @@ export function StatisticsPage() {
                     >
                         ☰ Меню
                     </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setIsRecommendationsOpen((current) => !current)}
+                        disabled={Number.isNaN(userId)}
+                        className="rounded-xl bg-slate-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    >
+                        {isRecommendationsOpen
+                            ? "Скрыть рекомендации"
+                            : "Показать рекомендации"}
+                    </button>
                 </div>
 
                 <div className="rounded-[28px] bg-slate-50 p-8 shadow-sm">
@@ -151,6 +164,13 @@ export function StatisticsPage() {
                                 <UserSubtopicStatsList statistics={subtopicStats} />
                             )}
                         </>
+                    )}
+
+                    {isRecommendationsOpen && !Number.isNaN(userId) && (
+                        <RecommendationPanel
+                            userId={userId}
+                            onClose={() => setIsRecommendationsOpen(false)}
+                        />
                     )}
                 </div>
             </div>

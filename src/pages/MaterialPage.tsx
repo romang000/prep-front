@@ -1,12 +1,13 @@
 import { Header } from "@/shared/ui/Header";
 import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar";
 import { useEffect, useState } from "react";
-import { getMaterials } from "@/features/materials/api/getMaterials";
-import type { MaterialGetResponse, PageDto } from "@/features/materials/model/types";
 import { Loader } from "@/shared/ui/Loader";
-import { MaterialsList } from "@/features/materials/ui/MaterialList";
 import { Pagination } from "@/shared/ui/Pagination";
 import { ErrorLoad } from "@/shared/ui/ErrorLoad";
+import { getMaterials } from "@/features/materials/api/getMaterials";
+import type { MaterialGetResponse } from "@/features/materials/model/types";
+import type { PageDto } from "@/features/tests/model/types";
+import { MaterialsList } from "@/features/materials/ui/MaterialList";
 
 export function MaterialPage() {
 

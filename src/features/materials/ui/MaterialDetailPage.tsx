@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { MaterialViewer } from "@/features/materials/ui/MaterialViewer";
+import { MaterialViewer } from "./MaterialViewer";
 
 export function MaterialDetailPage() {
   const { id } = useParams();
