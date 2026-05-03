@@ -1,6 +1,7 @@
 import { MaterialDetailPage } from "@/features/materials/ui/MaterialDetailPage";
 import { MainPage } from "@/pages/MainPage";
-import { MaterialPage } from "@/pages/MaterialPage";
+import { MaterialSubtopicsPage } from "@/pages/MaterialSubtopicsPage";
+import { MaterialTopicsPage } from "@/pages/MaterialTopicsPage";
 import { StatisticsPage } from "@/pages/StatisticsPage";
 import { TestDetailPage } from "@/pages/TestDetailPage";
 import { TestsPage } from "@/pages/TestsPage";
@@ -12,7 +13,8 @@ export default function App() {
       <Routes>
         <Route path="/tests" element={<TestsPage />} />
         <Route path="/tests/:id" element={<TestDetailPage />} />
-        <Route path="/materials" element={<MaterialPage />} />
+        <Route path="/materials" element={<MaterialTopicsPage />} />
+        <Route path="/materials/topics/:topic" element={<MaterialSubtopicsPage />} />
         <Route path="/materials/:materialId/files/:fileId" element={<MaterialDetailPage />} />
         <Route path="/statistics/users/:id" element={<StatisticsPage />} />
         <Route path="/" element={<MainPage />} />

@@ -1,12 +1,11 @@
 import { apiFetch } from "@/shared/api/client";
-import type { PageDto, MaterialGetRequest, MaterialGetResponse } from "../model/types";
+import type { PageDto, MaterialGetTopicsRequest, MaterialTopicGetResponse } from "../model/types";
 
-export async function getMaterials(
-    params: MaterialGetRequest,
-): Promise<PageDto<MaterialGetResponse>> {
+export async function getMaterialsTopics(
+    params: MaterialGetTopicsRequest,
+): Promise<PageDto<MaterialTopicGetResponse>> {
     const searchParams = new URLSearchParams({
         userId: String(params.userId),
-        topic: params.topic,
         pageNumber: String(params.pageNumber),
         pageSize: String(params.pageSize),
     });
@@ -15,8 +14,8 @@ export async function getMaterials(
         searchParams.set("level", params.level);
     }
 
-    return apiFetch<PageDto<MaterialGetResponse>>(
-        `/materials?${searchParams.toString()}`,
+    return apiFetch<PageDto<MaterialTopicGetResponse>>(
+        `/materials/topics?${searchParams.toString()}`,
         {
             service: "materials",
             method: "GET",

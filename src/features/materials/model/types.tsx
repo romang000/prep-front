@@ -21,6 +21,7 @@ export type MaterialGetRequest = {
     userId: number
     level?: string
     pageNumber: number
+    topic: string
     pageSize: number
 }
 
@@ -34,4 +35,16 @@ export type MaterialSetLikeResponse = {
     userId: number
     materialId: number
     isLiked: boolean
+}
+
+export type MaterialGetTopicsRequest = {
+    userId: number
+    level?: string
+    pageNumber: number
+    pageSize: number
+}
+
+export type MaterialTopicGetResponse = {
+    id: number
+    topic: string
 }
