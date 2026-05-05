@@ -14,6 +14,10 @@ export async function getMaterialsTopics(
         searchParams.set("level", params.level);
     }
 
+    if (params.topic) {
+        searchParams.set("topic", params.topic);
+    }
+
     return apiFetch<PageDto<MaterialTopicGetResponse>>(
         `/materials/topics?${searchParams.toString()}`,
         {

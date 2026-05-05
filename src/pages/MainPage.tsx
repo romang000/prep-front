@@ -2,39 +2,37 @@ import { Header } from "@/shared/ui/Header"
 import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/features/auth/model/useAuth"
+import { ErrorLoad } from "@/shared/ui/ErrorLoad"
+import { TopBar } from "@/shared/ui/TopBar"
 
 export function MainPage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-    const CURRENT_USER_ID = 1;
+    const { userId } = useAuth()
 
     const menuItems: MenuItem[] = [
         { label: "Главная", to: "/" },
         { label: "Тесты", to: "/tests" },
         { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
+        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
         { label: "Профиль", to: "/profile" },
     ]
 
+    if (userId === null) {
+        return <ErrorLoad message="Не удалось определить пользователя из JWT токена." />
+    }
+
     return (
 
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-100">
             <Sidebar
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
                 items={menuItems}
             />
 
-            <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-                <div className="mb-8 flex items-center gap-3">
-                    <button
-                        type="button"
-                        onClick={() => setIsMenuOpen(true)}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-100"
-                    >
-                        ☰ Меню
-                    </button>
-                </div>
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                <TopBar onMenuClick={() => setIsMenuOpen(true)} />
 
                 <Header
                     title="Добро пожаловать в приложение для подготовки к собеседованиям"
@@ -42,7 +40,7 @@ export function MainPage() {
                 />
 
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
                         <h2 className="text-xl font-semibold text-slate-800">
                             Проходите тесты
                         </h2>
@@ -53,13 +51,13 @@ export function MainPage() {
                         </p>
                         <Link
                             to="/tests"
-                            className="mt-4 inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                            className="mt-4 inline-block rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                         >
                             Перейти к тестам
                         </Link>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
                         <h2 className="text-xl font-semibold text-slate-800">
                             Изучайте материалы
                         </h2>
@@ -69,13 +67,13 @@ export function MainPage() {
                         </p>
                         <Link
                             to="/materials"
-                            className="mt-4 inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                            className="mt-4 inline-block rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                         >
                             Открыть материалы
                         </Link>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-6 shadow-sm md:col-span-2 xl:col-span-1">
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5 md:col-span-2 xl:col-span-1">
                         <h2 className="text-xl font-semibold text-slate-800">
                             Анализируйте прогресс
                         </h2>
@@ -84,8 +82,8 @@ export function MainPage() {
                             какие темы нужно повторить в первую очередь.
                         </p>
                         <Link
-                            to={`/statistics/users/${CURRENT_USER_ID}`} // вот тут
-                            className="mt-4 inline-block rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                            to={`/statistics/users/${userId}`}
+                            className="mt-4 inline-block rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                         >
                             Посмотреть статистику по темам
                         </Link>
@@ -93,13 +91,13 @@ export function MainPage() {
                 </div>
 
                 <div className="mt-8 grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
                         <h2 className="text-2xl font-semibold text-slate-800">
                             Что есть в приложении
                         </h2>
 
                         <div className="mt-5 space-y-4">
-                            <div className="rounded-xl border border-slate-200 p-4">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                                 <h3 className="text-sm font-semibold text-slate-800">
                                     Тестирование по темам
                                 </h3>
@@ -109,7 +107,7 @@ export function MainPage() {
                                 </p>
                             </div>
 
-                            <div className="rounded-xl border border-slate-200 p-4">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                                 <h3 className="text-sm font-semibold text-slate-800">
                                     Учебные материалы
                                 </h3>
@@ -119,7 +117,7 @@ export function MainPage() {
                                 </p>
                             </div>
 
-                            <div className="rounded-xl border border-slate-200 p-4">
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                                 <h3 className="text-sm font-semibold text-slate-800">
                                     Отслеживание результатов
                                 </h3>
@@ -131,28 +129,28 @@ export function MainPage() {
                         </div>
                     </div>
 
-                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
                         <h2 className="text-2xl font-semibold text-slate-800">
                             С чего начать
                         </h2>
 
                         <div className="mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-                            <div className="rounded-2xl border border-slate-200 p-4">
-                                <div className="text-lg font-bold text-blue-600">1</div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                <div className="text-lg font-semibold text-slate-950">1</div>
                                 <p className="mt-2 text-sm text-slate-600">
                                     Откройте список тестов и выберите нужную тему.
                                 </p>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-200 p-4">
-                                <div className="text-lg font-bold text-blue-600">2</div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                <div className="text-lg font-semibold text-slate-950">2</div>
                                 <p className="mt-2 text-sm text-slate-600">
                                     Пройдите тест и посмотрите, где были ошибки.
                                 </p>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-200 p-4">
-                                <div className="text-lg font-bold text-blue-600">3</div>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                <div className="text-lg font-semibold text-slate-950">3</div>
                                 <p className="mt-2 text-sm text-slate-600">
                                     Повторите материалы и улучшите результат.
                                 </p>

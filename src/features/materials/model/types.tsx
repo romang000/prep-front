@@ -40,6 +40,7 @@ export type MaterialSetLikeResponse = {
 export type MaterialGetTopicsRequest = {
     userId: number
     level?: string
+    topic?: string
     pageNumber: number
     pageSize: number
 }

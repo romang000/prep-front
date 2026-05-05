@@ -12,7 +12,7 @@ export function MaterialTopicsList({
 }: MaterialTopicsListProps) {
     if (topics.length === 0) {
         return (
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
                 <h2 className="text-xl font-semibold text-slate-900">
                     Темы не найдены
                 </h2>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
 import { Loader } from "@/shared/ui/Loader"
 import { ErrorLoad } from "@/shared/ui/ErrorLoad"
 import { Header } from "@/shared/ui/Header"
@@ -13,16 +12,17 @@ import { getUserTopicStatsByTopic } from "@/features/statistic/api/getUserTopicS
 import { UserTopicStatsList } from "@/features/statistic/ui/UserTopicStatsList"
 import { UserSubtopicStatsList } from "@/features/statistic/ui/UserSubtopicStatsList"
 import { RecommendationPanel } from "@/features/recommendation/ui/RecommendationPanel"
+import { useAuth } from "@/features/auth/model/useAuth"
+import { TopBar } from "@/shared/ui/TopBar"
 
 export function StatisticsPage() {
-    const { id } = useParams()
-    const userId = Number(id)
+    const { userId } = useAuth()
 
     const menuItems: MenuItem[] = [
         { label: "Главная", to: "/" },
         { label: "Тесты", to: "/tests" },
         { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId}` },
+        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
         { label: "Профиль", to: "/profile" },
     ]
 
@@ -39,12 +39,19 @@ export function StatisticsPage() {
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            return
+        }
+
+        const currentUserId = userId
+
         async function loadTopicStats() {
             try {
                 setIsLoadingTopics(true)
                 setError(null)
 
-                const data = await getAllUserTopicStats(userId)
+                const data = await getAllUserTopicStats(currentUserId)
                 setTopicStats(data)
             } catch {
                 setError("Не удалось загрузить статистику по темам")
@@ -53,14 +60,15 @@ export function StatisticsPage() {
             }
         }
 
-        if (!Number.isNaN(userId)) {
-            loadTopicStats()
-        } else {
-            setError("Некорректный идентификатор пользователя")
-        }
+        loadTopicStats()
     }, [userId])
 
     async function handleTopicClick(topic: string) {
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            return
+        }
+
         try {
             setSelectedTopic(topic)
             setIsLoadingSubtopics(true)
@@ -93,28 +101,23 @@ export function StatisticsPage() {
             />
 
             <div className="mx-auto max-w-6xl px-6 py-8">
-                <div className="mb-6 flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={() => setIsMenuOpen(true)}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                    >
-                        ☰ Меню
-                    </button>
+                <TopBar
+                    onMenuClick={() => setIsMenuOpen(true)}
+                    rightContent={
+                        <button
+                            type="button"
+                            onClick={() => setIsRecommendationsOpen((current) => !current)}
+                            disabled={userId === null}
+                            className="rounded-lg bg-slate-950 px-5 py-2 text-sm font-medium text-white shadow-sm shadow-slate-950/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                        >
+                            {isRecommendationsOpen
+                                ? "Скрыть рекомендации"
+                                : "Показать рекомендации"}
+                        </button>
+                    }
+                />
 
-                    <button
-                        type="button"
-                        onClick={() => setIsRecommendationsOpen((current) => !current)}
-                        disabled={Number.isNaN(userId)}
-                        className="rounded-xl bg-slate-900 px-5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-                    >
-                        {isRecommendationsOpen
-                            ? "Скрыть рекомендации"
-                            : "Показать рекомендации"}
-                    </button>
-                </div>
-
-                <div className="rounded-[28px] bg-slate-50 p-8 shadow-sm">
+                <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
                     {!selectedTopic ? (
                         <>
                             <Header
@@ -148,7 +151,7 @@ export function StatisticsPage() {
                                 <button
                                     type="button"
                                     onClick={handleBackToTopics}
-                                    className="shrink-0 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                                    className="shrink-0 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                                 >
                                     Назад к темам
                                 </button>
@@ -166,7 +169,7 @@ export function StatisticsPage() {
                         </>
                     )}
 
-                    {isRecommendationsOpen && !Number.isNaN(userId) && (
+                    {isRecommendationsOpen && userId !== null && (
                         <RecommendationPanel
                             userId={userId}
                             onClose={() => setIsRecommendationsOpen(false)}

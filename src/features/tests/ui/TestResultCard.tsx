@@ -36,9 +36,9 @@ export function TestResultCard(props: TestResultCardProps) {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg space-y-6">
-                <h1 className="text-3xl font-bold text-center text-gray-900">
+        <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+            <div className="w-full max-w-md space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/10">
+                <h1 className="text-center text-3xl font-semibold tracking-tight text-slate-950">
                     Тест завершён
                 </h1>
 
@@ -49,7 +49,7 @@ export function TestResultCard(props: TestResultCardProps) {
                                 cx="50"
                                 cy="50"
                                 r={radius}
-                                stroke="#E5E7EB"
+                                stroke="#E2E8F0"
                                 strokeWidth="10"
                                 fill="none"
                             />
@@ -66,35 +66,35 @@ export function TestResultCard(props: TestResultCardProps) {
                             />
                         </svg>
 
-                        <div className="absolute text-3xl font-bold text-gray-900">
+                        <div className="absolute text-3xl font-semibold text-slate-950">
                             {result.percent}%
                         </div>
                     </div>
                 </div>
 
-                <p className="text-center text-gray-500 text-lg">
+                <p className="text-center text-lg text-slate-500">
                     Время прохождения: {formatTime(elapsedSeconds)}
                 </p>
 
-                <div className="rounded-xl bg-orange-100 px-4 py-3 text-center">
-                    <p className="font-semibold text-orange-500">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-center">
+                    <p className="font-semibold text-amber-700">
                         {result.message}
                     </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-xl bg-gray-100 p-5 text-center">
-                        <div className="text-4xl font-bold text-gray-900">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 text-center">
+                        <div className="text-4xl font-semibold text-slate-950">
                             {result.correctCount}
                         </div>
-                        <div className="text-gray-500 mt-1">Правильных</div>
+                        <div className="mt-1 text-slate-500">Правильных</div>
                     </div>
 
-                    <div className="rounded-xl bg-gray-100 p-5 text-center">
-                        <div className="text-4xl font-bold text-gray-900">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-5 text-center">
+                        <div className="text-4xl font-semibold text-slate-950">
                             {result.wrongCount}
                         </div>
-                        <div className="text-gray-500 mt-1">Ошибок</div>
+                        <div className="mt-1 text-slate-500">Ошибок</div>
                     </div>
                 </div>
 
@@ -102,7 +102,7 @@ export function TestResultCard(props: TestResultCardProps) {
                     <button
                         type="button"
                         onClick={onGoToTests}
-                        className="w-full rounded-xl bg-gray-200 py-3 text-lg font-medium text-blue-600"
+                        className="w-full rounded-lg border border-slate-300 bg-white py-3 text-lg font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                     >
                         Продолжить
                     </button>
@@ -110,7 +110,7 @@ export function TestResultCard(props: TestResultCardProps) {
                     <button
                         type="button"
                         onClick={onRetry}
-                        className="w-full rounded-xl bg-blue-600 py-3 text-lg font-medium text-white"
+                        className="w-full rounded-lg bg-slate-950 py-3 text-lg font-medium text-white transition hover:bg-slate-800"
                     >
                         Пройти ещё раз
                     </button>

@@ -1,19 +1,28 @@
 import { Header } from "@/shared/ui/Header"
 import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Loader } from "@/shared/ui/Loader"
 import { Pagination } from "@/shared/ui/Pagination"
 import { ErrorLoad } from "@/shared/ui/ErrorLoad"
 import { getMaterials } from "@/features/materials/api/getMaterials"
 import type { MaterialGetResponse, PageDto } from "@/features/materials/model/types"
 import { MaterialSubtopicsList } from "@/features/materials/ui/MaterialSubtopicsList"
+import { useAuth } from "@/features/auth/model/useAuth"
+import { TopBar } from "@/shared/ui/TopBar"
+
+const LEVEL_OPTIONS = [
+    { label: "Все уровни", value: "" },
+    { label: "Junior", value: "JUNIOR" },
+    { label: "Middle", value: "MIDDLE" },
+    { label: "Senior", value: "SENIOR" },
+]
 
 export function MaterialSubtopicsPage() {
-    const CURRENT_USER_ID = 1 // TODO: заменить на реальный ID текущего пользователя из контекста аутентификации
-
     const navigate = useNavigate()
     const { topic } = useParams()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const { userId } = useAuth()
 
     const selectedTopic = topic ? decodeURIComponent(topic) : ""
 
@@ -21,13 +30,14 @@ export function MaterialSubtopicsPage() {
         { label: "Главная", to: "/" },
         { label: "Тесты", to: "/tests" },
         { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
+        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
         { label: "Профиль", to: "/profile" },
     ]
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [pageNumber, setPageNumber] = useState(0)
     const [pageSize] = useState(10)
+    const [selectedLevel, setSelectedLevel] = useState(searchParams.get("level") ?? "JUNIOR")
 
     const [data, setData] = useState<PageDto<MaterialGetResponse> | null>(null)
     const [isLoading, setIsLoading] = useState(true)
@@ -40,15 +50,21 @@ export function MaterialSubtopicsPage() {
             return
         }
 
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            setIsLoading(false)
+            return
+        }
+
         const loadSubtopics = async () => {
             try {
                 setIsLoading(true)
                 setError(null)
 
                 const response = await getMaterials({
-                    userId: CURRENT_USER_ID,
+                    userId,
                     topic: selectedTopic,
-                    level: "JUNIOR",
+                    level: selectedLevel || undefined,
                     pageNumber,
                     pageSize,
                 })
@@ -63,7 +79,7 @@ export function MaterialSubtopicsPage() {
         }
 
         loadSubtopics()
-    }, [selectedTopic, pageNumber, pageSize])
+    }, [selectedTopic, pageNumber, pageSize, selectedLevel, userId])
 
     const subtopicMaterials = useMemo(() => {
         const materials = data?.content ?? []
@@ -85,8 +101,27 @@ export function MaterialSubtopicsPage() {
         navigate("/materials")
     }
 
+    function handleLevelChange(level: string) {
+        setSelectedLevel(level)
+        setPageNumber(0)
+
+        const nextSearchParams = new URLSearchParams(searchParams)
+
+        if (level) {
+            nextSearchParams.set("level", level)
+        } else {
+            nextSearchParams.delete("level")
+        }
+
+        setSearchParams(nextSearchParams)
+    }
+
     const handleSubtopicClick = (material: MaterialGetResponse) => {
         navigate(`/materials/${material.id}/files/${material.fileId}`)
+    }
+
+    if (userId === null) {
+        return <ErrorLoad message="Не удалось определить пользователя из JWT токена." />
     }
 
     return (
@@ -98,29 +133,36 @@ export function MaterialSubtopicsPage() {
             />
 
             <div className="mx-auto max-w-6xl px-6 py-8">
-                <div className="mb-6 flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={() => setIsMenuOpen(true)}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                    >
-                        ☰ Меню
-                    </button>
+                <TopBar
+                    onMenuClick={() => setIsMenuOpen(true)}
+                    backLabel="← К темам"
+                    onBackClick={handleBackToTopics}
+                />
 
-                    <button
-                        type="button"
-                        onClick={handleBackToTopics}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                    >
-                        ← К темам
-                    </button>
-                </div>
-
-                <div className="rounded-[28px] bg-slate-50 p-8 shadow-sm">
+                <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
                     <Header
                         title={selectedTopic}
                         description="Выберите подтему, чтобы перейти к учебному материалу."
                     />
+
+                    <div className="mb-8 max-w-xs rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
+                                Уровень сложности
+                            </span>
+                            <select
+                                value={selectedLevel}
+                                onChange={(event) => handleLevelChange(event.target.value)}
+                                className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 shadow-sm shadow-slate-950/5 transition hover:border-slate-400 focus:border-slate-500 focus:outline-none"
+                            >
+                                {LEVEL_OPTIONS.map((option) => (
+                                    <option key={option.value || "all"} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
 
                     <div className="mt-8">
                         {isLoading && <Loader />}
@@ -132,7 +174,7 @@ export function MaterialSubtopicsPage() {
                         {!isLoading && !error && (
                             <MaterialSubtopicsList
                                 materials={subtopicMaterials}
-                                userId={CURRENT_USER_ID}
+                                userId={userId}
                                 onSubtopicClick={handleSubtopicClick}
                             />
                         )}

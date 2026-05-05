@@ -15,20 +15,20 @@ export function Sidebar({ isOpen, onClose, items }: SidebarProps) {
     return (
         <>
             <aside
-                className={`fixed left-0 top-0 z-40 h-full w-72 transform bg-white shadow-xl transition-transform duration-300 ${
+                className={`fixed left-0 top-0 z-40 h-full w-72 transform border-r border-slate-200 bg-white shadow-2xl shadow-slate-950/10 transition-transform duration-300 ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
             >
                 <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-800">Меню</h2>
+                        <h2 className="text-xl font-semibold tracking-tight text-slate-950">Меню</h2>
                         <p className="text-sm text-slate-500">Навигация по приложению</p>
                     </div>
 
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                        className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                     >
                         ✕
                     </button>
@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, onClose, items }: SidebarProps) {
                             key={item.to}
                             to={item.to}
                             onClick={onClose}
-                            className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-blue-50 hover:text-blue-600"
+                            className="rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
                         >
                             {item.label}
                         </Link>
@@ -52,7 +52,7 @@ export function Sidebar({ isOpen, onClose, items }: SidebarProps) {
                 <button
                     type="button"
                     onClick={onClose}
-                    className="fixed inset-0 z-30 bg-black/30"
+                    className="fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-[1px]"
                 />
             )}
         </>

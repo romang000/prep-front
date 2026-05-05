@@ -10,11 +10,11 @@ export function TestCard({ test, onClick }: Props) {
 
         <button
             onClick={onClick}
-            className="w-full text-left rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="w-full rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm shadow-slate-950/5 transition hover:border-slate-300 hover:bg-slate-50 hover:shadow-md hover:shadow-slate-950/10"
         >
             <div className="mb-3 flex items-start justify-between gap-3">
                 <h3 className="text-lg font-semibold text-slate-800">{test.title}</h3>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
+                <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
                     #{test.id}
                 </span>
             </div>

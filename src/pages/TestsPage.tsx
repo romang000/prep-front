@@ -7,15 +7,17 @@ import { Loader } from "@/shared/ui/Loader";
 import { Pagination } from "@/shared/ui/Pagination";
 import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/features/auth/model/useAuth";
+import { TopBar } from "@/shared/ui/TopBar";
 
 export function TestsPage() {
-    const CURRENT_USER_ID = 1
+    const { userId } = useAuth()
 
     const menuItems: MenuItem[] = [
         { label: "Главная", to: "/" },
         { label: "Тесты", to: "/tests" },
         { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${CURRENT_USER_ID}` },
+        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
         { label: "Профиль", to: "/profile" },
     ]
 
@@ -50,6 +52,10 @@ export function TestsPage() {
 
     const tests = data?.content ?? [];
 
+    if (userId === null) {
+        return <ErrorLoad message="Не удалось определить пользователя из JWT токена." />
+    }
+
     return (
         <div className="min-h-screen bg-slate-100">
             <Sidebar
@@ -59,17 +65,9 @@ export function TestsPage() {
             />
 
             <div className="mx-auto max-w-6xl px-6 py-8">
-                <div className="mb-6 flex items-center justify-between">
-                    <button
-                        type="button"
-                        onClick={() => setIsMenuOpen(true)}
-                        className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                    >
-                        ☰ Меню
-                    </button>
-                </div>
+                <TopBar onMenuClick={() => setIsMenuOpen(true)} />
 
-                <div className="rounded-[28px] bg-slate-50 p-8 shadow-sm">
+                <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
                     <Header
                         title="Список тестов"
                         description="Все доступные тесты для подготовки к собеседованиям. Выбирайте и начинайте практиковаться прямо сейчас!"
@@ -83,7 +81,7 @@ export function TestsPage() {
                         )}
 
                         {!isLoading && !error && (
-                            <TestsList tests={tests} />
+                            <TestsList tests={tests} userId={userId} />
                         )}
                     </div>
                 </div>

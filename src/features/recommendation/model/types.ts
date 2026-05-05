@@ -1,7 +1,7 @@
 export type RecommendationCreateResponse = {
     userId: number
     recommendationType: string
-    targetId: number
+    targetId: number | null
     sourceService: string
     topic: string
     subtopic: string

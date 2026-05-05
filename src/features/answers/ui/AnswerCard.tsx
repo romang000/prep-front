@@ -16,19 +16,19 @@ export function AnswerCard({
     const isSelected = selectedAnswerId === answer.id
 
     let className =
-        "w-full text-left border rounded-lg p-4 transition"
+        "w-full rounded-xl border p-4 text-left transition"
 
     if (!isAnswered) {
         className += isSelected
-            ? " border-blue-500 bg-blue-50"
-            : " border-gray-200 hover:bg-gray-50"
+            ? " border-slate-950 bg-slate-100"
+            : " border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
     } else {
         if (answer.isCorrect) {
-            className += " border-green-500 bg-green-50"
+            className += " border-emerald-300 bg-emerald-50"
         } else if (isSelected && !answer.isCorrect) {
-            className += " border-red-500 bg-red-50"
+            className += " border-red-300 bg-red-50"
         } else {
-            className += " border-gray-200 bg-white"
+            className += " border-slate-200 bg-white"
         }
     }
 
@@ -40,23 +40,23 @@ export function AnswerCard({
             className={className}
         >
             <div className="flex items-start justify-between gap-4">
-                <span className="text-gray-800">{answer.text}</span>
+                <span className="text-slate-800">{answer.text}</span>
 
                 {isAnswered && answer.isCorrect && (
-                    <span className="text-sm font-medium text-green-700">
+                    <span className="shrink-0 text-sm font-medium text-emerald-700">
                         Правильный
                     </span>
                 )}
 
                 {isAnswered && isSelected && !answer.isCorrect && (
-                    <span className="text-sm font-medium text-red-700">
+                    <span className="shrink-0 text-sm font-medium text-red-700">
                         Неправильный
                     </span>
                 )}
             </div>
 
             {isAnswered && answer.explanation && (
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                     {answer.explanation}
                 </p>
             )}

@@ -6,7 +6,7 @@ type Props = {
 
 export function SubtopicStatisticCard({ statistic }: Props) {
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
             <div className="mb-4">
                 <p className="text-sm text-slate-500">{statistic.topic}</p>
                 <h3 className="text-lg font-semibold text-slate-900">
@@ -26,7 +26,7 @@ export function SubtopicStatisticCard({ statistic }: Props) {
 
 function InfoItem({ label, value }: { label: string; value: string | number }) {
     return (
-        <div className="rounded-xl bg-slate-50 p-3">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
             <p className="text-xs text-slate-500">{label}</p>
             <p className="mt-1 font-semibold text-slate-900">{value}</p>
         </div>

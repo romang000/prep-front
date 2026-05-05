@@ -15,10 +15,10 @@ import { createUserTestSession } from "@/features/userTestSession/api/userTestSe
 import type { TestResult } from "@/features/tests/model/types"
 import { TestResultCard } from "@/features/tests/ui/TestResultCard"
 import { createRecommendations } from "@/features/recommendation/api/createRecommendations"
+import { useAuth } from "@/features/auth/model/useAuth"
 
 export function TestDetailPage() {
-    const CURRENT_USER_ID = 1
-
+    const { userId } = useAuth()
     const { id } = useParams<{ id: string }>()
     const testId = Number(id)
 
@@ -158,6 +158,10 @@ export function TestDetailPage() {
         const question = questions[currentIndex]
 
         if (!question) return
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            return
+        }
 
         setSelectedAnswers((prev) => ({
             ...prev,
@@ -166,7 +170,7 @@ export function TestDetailPage() {
 
         try {
             await createUserQuestion({
-                userId: CURRENT_USER_ID,
+                userId,
                 questionId: question.id,
                 answerId: answerId,
             })
@@ -224,13 +228,18 @@ export function TestDetailPage() {
             return
         }
 
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            return
+        }
+
         try {
             setIsSubmittingFinish(true)
 
-            const [sessionResult, recommendationsResult] = await Promise.all([
-            setUserTestSessionComplete({ id: sessionId, isComplete: isComplete }),
-            createRecommendations({ userId: CURRENT_USER_ID })
-        ]);
+            await Promise.all([
+                setUserTestSessionComplete({ id: sessionId, isComplete: isComplete }),
+                createRecommendations({ userId }),
+            ])
 
             const result = await calculateTestResult()
             setTestResult(result)
@@ -264,9 +273,14 @@ export function TestDetailPage() {
     // }
 
     const handleRetry = async () => {
+        if (userId === null) {
+            setError("Не удалось определить пользователя из JWT токена.")
+            return
+        }
+
         try {
             const response = await createUserTestSession({
-                userId: CURRENT_USER_ID,
+                userId,
                 testId: testId,
             })
 
@@ -278,6 +292,10 @@ export function TestDetailPage() {
 
     if (isLoadingQuestions) {
         return <Loader />
+    }
+
+    if (userId === null) {
+        return <ErrorLoad message="Не удалось определить пользователя из JWT токена." />
     }
 
     if (error) {
@@ -312,43 +330,43 @@ export function TestDetailPage() {
 
     return (
         <>
-            <div className="max-w-3xl mx-auto p-4 space-y-4">
+            <div className="mx-auto max-w-3xl space-y-4 p-4 sm:py-8">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
                         Прохождение теста
                     </h1>
 
-                    <span className="text-sm text-gray-500">
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-600">
                         {currentIndex + 1} / {questions.length}
                     </span>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
+                <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500">Время прохождения</p>
-                            <p className="text-xl font-semibold text-gray-800">
+                            <p className="text-sm text-slate-500">Время прохождения</p>
+                            <p className="text-xl font-semibold text-slate-950">
                                 {formatTime(elapsedSeconds)}
                             </p>
                         </div>
 
                         <div className="text-right">
-                            <p className="text-sm text-gray-500">Прогресс</p>
-                            <p className="text-xl font-semibold text-gray-800">
+                            <p className="text-sm text-slate-500">Прогресс</p>
+                            <p className="text-xl font-semibold text-slate-950">
                                 {progressPercent}%
                             </p>
                         </div>
                     </div>
 
                     <div>
-                        <div className="mb-1 flex justify-between text-sm text-gray-500">
+                        <div className="mb-1 flex justify-between text-sm text-slate-500">
                             <span>Отвечено: {answeredCount} из {questions.length}</span>
                             <span>{progressPercent}%</span>
                         </div>
 
-                        <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
                             <div
-                                className="h-full rounded-full bg-blue-500 transition-all duration-300"
+                                className="h-full rounded-full bg-slate-950 transition-all duration-300"
                                 style={{ width: `${progressPercent}%` }}
                             />
                         </div>
@@ -380,7 +398,7 @@ export function TestDetailPage() {
                         type="button"
                         onClick={handlePrev}
                         disabled={currentIndex === 0}
-                        className="px-4 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Назад
                     </button>
@@ -389,7 +407,7 @@ export function TestDetailPage() {
                         type="button"
                         onClick={() => handleFinishClick(true)}
                         disabled={isSubmittingFinish}
-                        className="px-4 py-2 rounded-lg bg-red-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isSubmittingFinish ? "Завершение..." : "Завершить тест"}
                     </button>
@@ -398,7 +416,7 @@ export function TestDetailPage() {
                         type="button"
                         onClick={handleNext}
                         disabled={currentIndex === questions.length - 1}
-                        className="px-4 py-2 rounded-lg bg-blue-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Далее
                     </button>
@@ -406,13 +424,13 @@ export function TestDetailPage() {
             </div>
 
             {isFinishModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-                        <h2 className="mb-3 text-xl font-bold text-gray-800">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-[1px]">
+                    <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-950/20">
+                        <h2 className="mb-3 text-xl font-semibold text-slate-950">
                             Вы ответили не на все вопросы
                         </h2>
 
-                        <p className="mb-4 text-gray-600">
+                        <p className="mb-4 text-sm leading-6 text-slate-600">
                             Вы уверены, что хотите завершить тест?
                         </p>
 
@@ -421,7 +439,7 @@ export function TestDetailPage() {
                                 type="button"
                                 onClick={() => setIsFinishModalOpen(false)}
                                 disabled={isSubmittingFinish}
-                                className="px-4 py-2 rounded-lg border border-gray-300 disabled:opacity-50"
+                                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:opacity-50"
                             >
                                 Отмена
                             </button>
@@ -430,7 +448,7 @@ export function TestDetailPage() {
                                 type="button"
                                 onClick={() => handleExit(false)}
                                 disabled={isSubmittingFinish}
-                                className="px-4 py-2 rounded-lg bg-red-500 text-white disabled:opacity-50"
+                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
                             >
                                 {isSubmittingFinish ? "Завершение..." : "Всё равно завершить"}
                             </button>
