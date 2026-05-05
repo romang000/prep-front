@@ -9,3 +9,7 @@ export type RecommendationCreateResponse = {
     priority: number
     status: string
 }
+
+export type RecommendationCreateRequest = {
+    userId: number
+}

@@ -97,14 +97,6 @@ export function RecommendationPanel({
                                 <span className="rounded-full bg-white px-3 py-1">
                                     Тип: {recommendation.recommendationType}
                                 </span>
-
-                                <span className="rounded-full bg-white px-3 py-1">
-                                    Статус: {recommendation.status}
-                                </span>
-
-                                <span className="rounded-full bg-white px-3 py-1">
-                                    Источник: {recommendation.sourceService}
-                                </span>
                             </div>
                         </article>
                     ))}

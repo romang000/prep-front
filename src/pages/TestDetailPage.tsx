@@ -14,6 +14,7 @@ import { setUserTestSessionComplete } from "@/features/userTestSession/api/userT
 import { createUserTestSession } from "@/features/userTestSession/api/userTestSession"
 import type { TestResult } from "@/features/tests/model/types"
 import { TestResultCard } from "@/features/tests/ui/TestResultCard"
+import { createRecommendations } from "@/features/recommendation/api/createRecommendations"
 
 export function TestDetailPage() {
     const CURRENT_USER_ID = 1
@@ -226,10 +227,10 @@ export function TestDetailPage() {
         try {
             setIsSubmittingFinish(true)
 
-            await setUserTestSessionComplete({
-                id: sessionId,
-                isComplete: isComplete,
-            })
+            const [sessionResult, recommendationsResult] = await Promise.all([
+            setUserTestSessionComplete({ id: sessionId, isComplete: isComplete }),
+            createRecommendations({ userId: CURRENT_USER_ID })
+        ]);
 
             const result = await calculateTestResult()
             setTestResult(result)
