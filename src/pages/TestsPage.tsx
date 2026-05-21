@@ -9,6 +9,10 @@ import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/model/useAuth";
 import { TopBar } from "@/shared/ui/TopBar";
+import { getProfile } from "@/features/profile/api/getProfile";
+import { getLearningTracks } from "@/features/learningTracks/api/getLearningTracks";
+import { getTopics } from "@/features/topics/api/getTopics";
+import type { Topic } from "@/features/topics/model/types";
 
 export function TestsPage() {
     const { userId } = useAuth()
@@ -23,6 +27,9 @@ export function TestsPage() {
 
     const [pageNumber, setPageNumber] = useState(0);
     const [pageSize] = useState(6);
+    const [selectedTopicId, setSelectedTopicId] = useState("");
+    const [topics, setTopics] = useState<Topic[]>([]);
+    const [isFiltersLoading, setIsFiltersLoading] = useState(true);
 
     const [data, setData] = useState<PageDto<TestResponse> | null>(null);
 
@@ -32,12 +39,51 @@ export function TestsPage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
+        async function loadFilters() {
+            try {
+                setIsFiltersLoading(true);
+
+                const [profile, learningTracks, topicsPage] = await Promise.all([
+                    getProfile(),
+                    getLearningTracks(),
+                    getTopics(),
+                ]);
+                const learningTrack = learningTracks.find(
+                    (track) => track.id === profile.learningTrackId,
+                );
+                const defaultTopicId = learningTrack?.topicIds.find((topicId) =>
+                    topicsPage.content.some((topic) => topic.id === topicId),
+                );
+
+                setTopics(topicsPage.content);
+                setSelectedTopicId(defaultTopicId ? String(defaultTopicId) : "");
+            } catch (e) {
+                console.error("Ошибка при загрузке фильтров тестов", e);
+                setTopics([]);
+                setSelectedTopicId("");
+            } finally {
+                setIsFiltersLoading(false);
+            }
+        }
+
+        loadFilters();
+    }, []);
+
+    useEffect(() => {
+        if (isFiltersLoading) {
+            return;
+        }
+
         async function loadTests() {
             try {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await getTests({ pageNumber, pageSize });
+                const response = await getTests({
+                    pageNumber,
+                    pageSize,
+                    topicId: selectedTopicId ? Number(selectedTopicId) : undefined,
+                });
                 setData(response);
             } catch (e) {
                 console.error("Ошибка при загрузке тестов", e);
@@ -48,7 +94,12 @@ export function TestsPage() {
         }
 
         loadTests();
-    }, [pageNumber, pageSize]);
+    }, [pageNumber, pageSize, selectedTopicId, isFiltersLoading]);
+
+    function handleTopicChange(topicId: string) {
+        setSelectedTopicId(topicId);
+        setPageNumber(0);
+    }
 
     const tests = data?.content ?? [];
 
@@ -73,20 +124,43 @@ export function TestsPage() {
                         description="Все доступные тесты для подготовки к собеседованиям. Выбирайте и начинайте практиковаться прямо сейчас!"
                     />
 
-                    <div className="mt-8">
-                        {isLoading && <Loader />}
+                    <div className="mb-8 max-w-xs rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
+                                Тема
+                            </span>
+                            <select
+                                value={selectedTopicId}
+                                onChange={(event) => handleTopicChange(event.target.value)}
+                                disabled={isFiltersLoading}
+                                className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 shadow-sm shadow-slate-950/5 transition hover:border-slate-400 focus:border-slate-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                            >
+                                <option value="">
+                                    {isFiltersLoading ? "Загружаем темы..." : "Все темы"}
+                                </option>
+                                {topics.map((topic) => (
+                                    <option key={topic.id} value={topic.id}>
+                                        {topic.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
 
-                        {!isLoading && error && (
+                    <div className="mt-8">
+                        {(isFiltersLoading || isLoading) && <Loader />}
+
+                        {!isFiltersLoading && !isLoading && error && (
                             <ErrorLoad message={error} />
                         )}
 
-                        {!isLoading && !error && (
+                        {!isFiltersLoading && !isLoading && !error && (
                             <TestsList tests={tests} userId={userId} />
                         )}
                     </div>
                 </div>
 
-                {!isLoading && !error && data && (
+                {!isFiltersLoading && !isLoading && !error && data && (
                     <Pagination
                         pageNumber={data.pageNumber}
                         totalPages={data.totalPages}

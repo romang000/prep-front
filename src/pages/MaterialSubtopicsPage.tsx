@@ -20,11 +20,12 @@ const LEVEL_OPTIONS = [
 
 export function MaterialSubtopicsPage() {
     const navigate = useNavigate()
-    const { topic } = useParams()
+    const { topicId } = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
     const { userId } = useAuth()
 
-    const selectedTopic = topic ? decodeURIComponent(topic) : ""
+    const selectedTopicId = topicId ? Number(topicId) : NaN
+    const selectedTopicTitle = searchParams.get("title") ?? "Материалы"
 
     const menuItems: MenuItem[] = [
         { label: "Главная", to: "/" },
@@ -44,7 +45,7 @@ export function MaterialSubtopicsPage() {
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!selectedTopic) {
+        if (Number.isNaN(selectedTopicId)) {
             setError("Тема материала не указана.")
             setIsLoading(false)
             return
@@ -63,7 +64,7 @@ export function MaterialSubtopicsPage() {
 
                 const response = await getMaterials({
                     userId,
-                    topic: selectedTopic,
+                    topicId: selectedTopicId,
                     level: selectedLevel || undefined,
                     pageNumber,
                     pageSize,
@@ -79,7 +80,7 @@ export function MaterialSubtopicsPage() {
         }
 
         loadSubtopics()
-    }, [selectedTopic, pageNumber, pageSize, selectedLevel, userId])
+    }, [selectedTopicId, pageNumber, pageSize, selectedLevel, userId])
 
     const subtopicMaterials = useMemo(() => {
         const materials = data?.content ?? []
@@ -113,6 +114,10 @@ export function MaterialSubtopicsPage() {
             nextSearchParams.delete("level")
         }
 
+        if (selectedTopicTitle) {
+            nextSearchParams.set("title", selectedTopicTitle)
+        }
+
         setSearchParams(nextSearchParams)
     }
 
@@ -141,7 +146,7 @@ export function MaterialSubtopicsPage() {
 
                 <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
                     <Header
-                        title={selectedTopic}
+                        title={selectedTopicTitle}
                         description="Выберите подтему, чтобы перейти к учебному материалу."
                     />
 

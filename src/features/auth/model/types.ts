@@ -7,6 +7,7 @@ export type RegisterRequest = {
     email: string
     login: string
     password: string
+    learningTrackId: number
 }
 
 export type TokenRequest = {

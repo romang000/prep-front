@@ -32,7 +32,7 @@ export function StatisticsPage() {
     const [topicStats, setTopicStats] = useState<TopicStatisticsResponse[]>([])
     const [subtopicStats, setSubtopicStats] = useState<SubtopicStatisticsResponse[]>([])
 
-    const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
+    const [selectedTopicTitle, setSelectedTopicTitle] = useState<string | null>(null)
 
     const [isLoadingTopics, setIsLoadingTopics] = useState(false)
     const [isLoadingSubtopics, setIsLoadingSubtopics] = useState(false)
@@ -63,20 +63,20 @@ export function StatisticsPage() {
         loadTopicStats()
     }, [userId])
 
-    async function handleTopicClick(topic: string) {
+    async function handleTopicClick(topicId: number, topicTitle: string) {
         if (userId === null) {
             setError("Не удалось определить пользователя из JWT токена.")
             return
         }
 
         try {
-            setSelectedTopic(topic)
+            setSelectedTopicTitle(topicTitle)
             setIsLoadingSubtopics(true)
             setError(null)
 
             const data = await getUserTopicStatsByTopic({
                 userId,
-                topic,
+                topicId,
             })
 
             setSubtopicStats(data)
@@ -88,7 +88,7 @@ export function StatisticsPage() {
     }
 
     function handleBackToTopics() {
-        setSelectedTopic(null)
+        setSelectedTopicTitle(null)
         setSubtopicStats([])
     }
 
@@ -118,7 +118,7 @@ export function StatisticsPage() {
                 />
 
                 <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
-                    {!selectedTopic ? (
+                    {!selectedTopicTitle ? (
                         <>
                             <Header
                                 title="Статистика по темам"
@@ -144,7 +144,7 @@ export function StatisticsPage() {
                         <>
                             <div className="mb-8 flex items-start justify-between gap-4">
                                 <Header
-                                    title={`Подтемы: ${selectedTopic}`}
+                                    title={`Подтемы: ${selectedTopicTitle}`}
                                     description="Детальная статистика пользователя по подтемам."
                                 />
 

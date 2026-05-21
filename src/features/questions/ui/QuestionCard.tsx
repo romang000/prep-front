@@ -12,7 +12,7 @@ export function QuestionCard({ question }: Props) {
             <div className="mb-3 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <h2 className="text-xl font-semibold text-slate-950">
-                        {question.topic}
+                        {question.topic ?? question.subtopic ?? `Тема #${question.topicId}`}
                     </h2>
                 </div>
                 <span className="shrink-0 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">

@@ -1,5 +1,15 @@
 import { API_URLS } from "@/shared/api/config"
 
+export class AuthFetchError extends Error {
+    readonly status: number
+
+    constructor(status: number) {
+        super(`Ошибка запроса: ${status}`)
+        this.name = "AuthFetchError"
+        this.status = status
+    }
+}
+
 export async function authFetch<T>(path: string, options: RequestInit): Promise<T> {
     const response = await fetch(`${API_URLS.auth}${path}`, {
         ...options,
@@ -10,7 +20,7 @@ export async function authFetch<T>(path: string, options: RequestInit): Promise<
     })
 
     if (!response.ok) {
-        throw new Error(`Ошибка запроса: ${response.status}`)
+        throw new AuthFetchError(response.status)
     }
 
     if (response.status === 204) {

@@ -18,6 +18,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<HomeRoute />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AdminRoute />}>
@@ -26,12 +27,11 @@ export default function App() {
             <Route path="/tests" element={<TestsPage />} />
             <Route path="/tests/:id" element={<TestDetailPage />} />
             <Route path="/materials" element={<MaterialTopicsPage />} />
-            <Route path="/materials/topics/:topic" element={<MaterialSubtopicsPage />} />
+            <Route path="/materials/topics/:topicId" element={<MaterialSubtopicsPage />} />
             <Route path="/materials/:materialId" element={<MaterialDetailPage />} />
             <Route path="/materials/:materialId/files/:fileId" element={<MaterialDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/statistics/users/:id" element={<StatisticsPage />} />
-            <Route path="/" element={<HomeRoute />} />
           </Route>
         </Routes>
       </BrowserRouter>

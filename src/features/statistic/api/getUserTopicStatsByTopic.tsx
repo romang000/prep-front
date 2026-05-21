@@ -7,7 +7,7 @@ export async function getUserTopicStatsByTopic(
 
     const searchParams = new URLSearchParams({
         userId: String(params.userId),
-        topic: String(params.topic),
+        topicId: String(params.topicId),
     });
 
     return apiFetch<SubtopicStatisticsResponse[]>(

@@ -10,6 +10,9 @@ import { MaterialTopicsList } from "@/features/materials/ui/MaterialTopicsList"
 import { getMaterialsTopics } from "@/features/materials/api/getMaterialTopics"
 import { useAuth } from "@/features/auth/model/useAuth"
 import { TopBar } from "@/shared/ui/TopBar"
+import { getProfile } from "@/features/profile/api/getProfile"
+import { getLearningTracks } from "@/features/learningTracks/api/getLearningTracks"
+import type { LearningTrack } from "@/features/learningTracks/model/types"
 
 const LEVEL_OPTIONS = [
     { label: "Все уровни", value: "" },
@@ -34,6 +37,9 @@ export function MaterialTopicsPage() {
     const [pageNumber, setPageNumber] = useState(0)
     const [pageSize] = useState(10)
     const [selectedLevel, setSelectedLevel] = useState("JUNIOR")
+    const [selectedLearningTrackId, setSelectedLearningTrackId] = useState("")
+    const [learningTracks, setLearningTracks] = useState<LearningTrack[]>([])
+    const [isFiltersLoading, setIsFiltersLoading] = useState(true)
     const [topicSearch, setTopicSearch] = useState("")
 
     const [data, setData] = useState<PageDto<MaterialTopicGetResponse> | null>(null)
@@ -50,12 +56,42 @@ export function MaterialTopicsPage() {
         }
 
         return topics.filter((topic) =>
-            topic.topic.toLowerCase().includes(normalizedTopicSearch),
+            topic.topicTitle.toLowerCase().includes(normalizedTopicSearch),
         )
     }, [data, normalizedTopicSearch])
 
     useEffect(() => {
+        const loadFilters = async () => {
+            try {
+                setIsFiltersLoading(true)
+
+                const [profile, learningTracks] = await Promise.all([
+                    getProfile(),
+                    getLearningTracks(),
+                ])
+
+                setLearningTracks(learningTracks)
+                setSelectedLearningTrackId(
+                    profile.learningTrackId ? String(profile.learningTrackId) : "",
+                )
+            } catch (e) {
+                console.error("Ошибка при загрузке фильтров материалов", e)
+                setLearningTracks([])
+                setSelectedLearningTrackId("")
+            } finally {
+                setIsFiltersLoading(false)
+            }
+        }
+
+        loadFilters()
+    }, [])
+
+    useEffect(() => {
         const loadMaterialTopics = async () => {
+            if (isFiltersLoading) {
+                return
+            }
+
             if (userId === null) {
                 setError("Не удалось определить пользователя из JWT токена.")
                 setIsLoading(false)
@@ -69,7 +105,9 @@ export function MaterialTopicsPage() {
                 const response = await getMaterialsTopics({
                     userId,
                     level: selectedLevel || undefined,
-                    topic: topicSearch.trim() || undefined,
+                    learningTrackId: selectedLearningTrackId
+                        ? Number(selectedLearningTrackId)
+                        : undefined,
                     pageNumber: isTopicSearchActive ? 0 : pageNumber,
                     pageSize: isTopicSearchActive ? 1000 : pageSize,
                 })
@@ -84,10 +122,24 @@ export function MaterialTopicsPage() {
         }
 
         loadMaterialTopics()
-    }, [pageNumber, pageSize, selectedLevel, topicSearch, isTopicSearchActive, userId])
+    }, [
+        pageNumber,
+        pageSize,
+        selectedLevel,
+        selectedLearningTrackId,
+        topicSearch,
+        isTopicSearchActive,
+        isFiltersLoading,
+        userId,
+    ])
 
     function handleLevelChange(level: string) {
         setSelectedLevel(level)
+        setPageNumber(0)
+    }
+
+    function handleLearningTrackChange(learningTrackId: string) {
+        setSelectedLearningTrackId(learningTrackId)
         setPageNumber(0)
     }
 
@@ -96,17 +148,19 @@ export function MaterialTopicsPage() {
         setPageNumber(0)
     }
 
-    const handleTopicClick = (topic: string) => {
+    const handleTopicClick = (topic: MaterialTopicGetResponse) => {
         const searchParams = new URLSearchParams()
 
         if (selectedLevel) {
             searchParams.set("level", selectedLevel)
         }
 
+        searchParams.set("title", topic.topicTitle)
+
         const queryString = searchParams.toString()
 
         navigate(
-            `/materials/topics/${encodeURIComponent(topic)}${queryString ? `?${queryString}` : ""}`,
+            `/materials/topics/${topic.id}${queryString ? `?${queryString}` : ""}`,
         )
     }
 
@@ -127,7 +181,7 @@ export function MaterialTopicsPage() {
                         description="Выберите тему, чтобы перейти к подтемам и учебным материалам."
                     />
 
-                    <div className="mb-8 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[220px_1fr]">
+                    <div className="mb-8 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[220px_260px_1fr]">
                         <label className="block">
                             <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
                                 Уровень сложности
@@ -140,6 +194,29 @@ export function MaterialTopicsPage() {
                                 {LEVEL_OPTIONS.map((option) => (
                                     <option key={option.value || "all"} value={option.value}>
                                         {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
+                                Направление
+                            </span>
+                            <select
+                                value={selectedLearningTrackId}
+                                onChange={(event) => handleLearningTrackChange(event.target.value)}
+                                disabled={isFiltersLoading}
+                                className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 shadow-sm shadow-slate-950/5 transition hover:border-slate-400 focus:border-slate-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                            >
+                                <option value="">
+                                    {isFiltersLoading
+                                        ? "Загружаем направления..."
+                                        : "Все направления"}
+                                </option>
+                                {learningTracks.map((track) => (
+                                    <option key={track.id} value={track.id}>
+                                        {track.title}
                                     </option>
                                 ))}
                             </select>
@@ -160,13 +237,13 @@ export function MaterialTopicsPage() {
                     </div>
 
                     <div className="mt-8">
-                        {isLoading && <Loader />}
+                        {(isFiltersLoading || isLoading) && <Loader />}
 
-                        {!isLoading && error && (
+                        {!isFiltersLoading && !isLoading && error && (
                             <ErrorLoad message={error} />
                         )}
 
-                        {!isLoading && !error && (
+                        {!isFiltersLoading && !isLoading && !error && (
                             <MaterialTopicsList
                                 topics={filteredTopics}
                                 onTopicClick={handleTopicClick}
@@ -175,7 +252,7 @@ export function MaterialTopicsPage() {
                     </div>
                 </div>
 
-                {!isLoading && !error && data && !isTopicSearchActive && (
+                {!isFiltersLoading && !isLoading && !error && data && !isTopicSearchActive && (
                     <Pagination
                         pageNumber={data.pageNumber}
                         totalPages={data.totalPages}

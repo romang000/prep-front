@@ -8,7 +8,7 @@ export function SubtopicStatisticCard({ statistic }: Props) {
     return (
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
             <div className="mb-4">
-                <p className="text-sm text-slate-500">{statistic.topic}</p>
+                <p className="text-sm text-slate-500">{statistic.topicTitle}</p>
                 <h3 className="text-lg font-semibold text-slate-900">
                     {statistic.subtopic}
                 </h3>

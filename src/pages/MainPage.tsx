@@ -41,6 +41,9 @@ export function MainPage() {
 
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+                        <div className="mb-4 h-10 w-10 rounded-lg bg-emerald-100 text-center text-2xl leading-10 text-emerald-800">
+                            ✓
+                        </div>
                         <h2 className="text-xl font-semibold text-slate-800">
                             Проходите тесты
                         </h2>
@@ -58,6 +61,9 @@ export function MainPage() {
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+                        <div className="mb-4 h-10 w-10 rounded-lg bg-emerald-100 text-center text-2xl leading-10 text-emerald-800">
+                            ◇
+                        </div>
                         <h2 className="text-xl font-semibold text-slate-800">
                             Изучайте материалы
                         </h2>
@@ -74,6 +80,9 @@ export function MainPage() {
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5 md:col-span-2 xl:col-span-1">
+                        <div className="mb-4 h-10 w-10 rounded-lg bg-emerald-100 text-center text-2xl leading-10 text-emerald-800">
+                            ↗
+                        </div>
                         <h2 className="text-xl font-semibold text-slate-800">
                             Анализируйте прогресс
                         </h2>

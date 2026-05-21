@@ -2,18 +2,18 @@ import type { TopicStatisticsResponse } from '../model/types'
 
 type Props = {
     statistic: TopicStatisticsResponse
-    onClick: (topic: string) => void
+    onClick: (topicId: number, topicTitle: string) => void
 }
 
 export function TopicStatisticCard({ statistic, onClick }: Props) {
     return (
         <button
-            onClick={() => onClick(statistic.topic)}
+            onClick={() => onClick(statistic.topicId, statistic.topicTitle)}
             className="group w-full rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm shadow-slate-950/5 transition hover:border-slate-300 hover:bg-slate-50 hover:shadow-md hover:shadow-slate-950/10"
         >
             <div className="mb-4 flex items-center justify-between gap-4">
                 <h3 className="text-lg font-semibold text-slate-900">
-                    {statistic.topic}
+                    {statistic.topicTitle}
                 </h3>
 
                 <span className="text-2xl text-slate-400 transition group-hover:text-slate-700">

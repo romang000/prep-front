@@ -4,6 +4,7 @@ import { TopBar } from "@/shared/ui/TopBar"
 import { Header } from "@/shared/ui/Header"
 import { Loader } from "@/shared/ui/Loader"
 import { ErrorLoad } from "@/shared/ui/ErrorLoad"
+import { getLearningTracks } from "@/features/learningTracks/api/getLearningTracks"
 import { getProfile } from "../api/getProfile"
 import type { UserProfile } from "../model/types"
 import { useAuth } from "@/features/auth/model/useAuth"
@@ -12,6 +13,7 @@ export function ProfilePage() {
     const { userId } = useAuth()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [profile, setProfile] = useState<UserProfile | null>(null)
+    const [learningTrackTitle, setLearningTrackTitle] = useState("Не указано")
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -29,9 +31,16 @@ export function ProfilePage() {
                 setIsLoading(true)
                 setError(null)
 
-                const data = await getProfile()
+                const [data, learningTracks] = await Promise.all([
+                    getProfile(),
+                    getLearningTracks(),
+                ])
+                const learningTrack = learningTracks.find(
+                    (track) => track.id === data.learningTrackId,
+                )
 
                 setProfile(data)
+                setLearningTrackTitle(learningTrack?.title ?? "Не указано")
             } catch {
                 setError("Не удалось загрузить профиль")
             } finally {
@@ -65,9 +74,12 @@ export function ProfilePage() {
 
                     {!isLoading && !error && profile && (
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <ProfileField label="ID" value={profile.id} />
                             <ProfileField label="Логин" value={profile.login} />
                             <ProfileField label="Почта" value={profile.email} />
+                            <ProfileField
+                                label="Направление подготовки"
+                                value={learningTrackTitle}
+                            />
                             <ProfileField label="Уровень" value={profile.grade ?? "Не указан"} />
                         </div>
                     )}

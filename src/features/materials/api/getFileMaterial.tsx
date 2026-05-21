@@ -1,4 +1,4 @@
-import { API_URLS } from "@/shared/api/config";
+import { apiFetchBlob } from "@/shared/api/client";
 
 export type MaterialFileResponse = {
   blob: Blob;
@@ -9,13 +9,10 @@ export type MaterialFileResponse = {
 export async function getMaterialFile(
   fileId: number,
 ): Promise<MaterialFileResponse> {
-  const response = await fetch(`${API_URLS.materials}/files/${fileId}`, {
+  const response = await apiFetchBlob(`/files/${fileId}`, {
+    service: "materials",
     method: "GET",
   });
-
-  if (!response.ok) {
-    throw new Error(`Ошибка запроса: ${response.status}`);
-  }
 
   return {
     blob: await response.blob(),

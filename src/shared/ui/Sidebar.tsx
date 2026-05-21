@@ -21,7 +21,10 @@ export function Sidebar({ isOpen, onClose, items }: SidebarProps) {
             >
                 <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
                     <div>
-                        <h2 className="text-xl font-semibold tracking-tight text-slate-950">Меню</h2>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                            Prep Platform
+                        </p>
+                        <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Меню</h2>
                         <p className="text-sm text-slate-500">Навигация по приложению</p>
                     </div>
 
@@ -40,7 +43,7 @@ export function Sidebar({ isOpen, onClose, items }: SidebarProps) {
                             key={item.to}
                             to={item.to}
                             onClick={onClose}
-                            className="rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
+                            className="rounded-lg px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-emerald-900"
                         >
                             {item.label}
                         </Link>

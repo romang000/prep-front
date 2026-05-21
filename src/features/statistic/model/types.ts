@@ -1,5 +1,6 @@
 export type TopicStatisticsResponse = {
-    topic: string
+    topicId: number
+    topicTitle: string
     totalAnswered: number
     correctCount: number
     incorrectCount: number
@@ -7,7 +8,7 @@ export type TopicStatisticsResponse = {
 }
 
 export type SubtopicStatisticsResponse = {
-    topic: string
+    topicTitle: string
     subtopic: string
     totalAnswered: number
     correctCount: number
@@ -17,5 +18,5 @@ export type SubtopicStatisticsResponse = {
 
 export type UserTopicStatsGetBySubtopicRequest = {
     userId: number
-    topic: string
+    topicId: number
 }

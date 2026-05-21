@@ -2,11 +2,15 @@ export type TestResponse = {
     id: number
     title: string
     description: string
+    type?: "REGULAR" | "DIAGNOSTIC"
+    grade?: "JUNIOR" | "MIDDLE" | "SENIOR" | null
+    topicTitle?: string | null
 }
 
 export type TestGetRequest = {
     pageNumber: number
     pageSize: number
+    topicId?: number
 }
 
 export type PageDto<T> = {

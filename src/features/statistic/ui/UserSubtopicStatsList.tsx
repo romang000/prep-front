@@ -18,7 +18,7 @@ export function UserSubtopicStatsList({ statistics }: Props) {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {statistics.map((statistic) => (
                 <SubtopicStatisticCard
-                    key={`${statistic.topic}-${statistic.subtopic}`}
+                    key={`${statistic.topicTitle}-${statistic.subtopic}`}
                     statistic={statistic}
                 />
             ))}

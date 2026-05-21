@@ -23,4 +23,5 @@ export type UserTestSessionCompleteResponse = {
     endAt: string
     totalSecond: number
     isCompleted: boolean
+    userLevel?: "JUNIOR" | "MIDDLE" | "SENIOR" | null
 }

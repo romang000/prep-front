@@ -71,13 +71,13 @@ export function RecommendationPanel({
                 <div className="space-y-4">
                     {recommendations.map((recommendation) => (
                         <article
-                            key={`${recommendation.targetId}-${recommendation.topic}-${recommendation.subtopic}`}
+                            key={`${recommendation.targetId}-${recommendation.topicTitle}-${recommendation.subtopic}`}
                             className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5"
                         >
                             <div className="mb-3 flex items-start justify-between gap-4">
                                 <div>
                                     <h3 className="text-base font-semibold text-slate-900">
-                                        {recommendation.topic}
+                                        {recommendation.topicTitle}
                                     </h3>
 
                                     <p className="mt-1 text-sm text-slate-500">
@@ -101,13 +101,13 @@ export function RecommendationPanel({
                             </div>
 
                             <div className="mt-5">
-                                {recommendation.targetId === null ? (
+                                {recommendation.topicId === null ? (
                                     <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
                                         На данный момент в системе материала по этой теме нет.
                                     </p>
                                 ) : (
                                     <Link
-                                        to={`/materials/${recommendation.targetId}`}
+                                        to={`/materials/${recommendation.topicId}`}
                                         className="inline-flex rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                                     >
                                         Перейти к материалу

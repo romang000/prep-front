@@ -16,6 +16,7 @@ import type { TestResult } from "@/features/tests/model/types"
 import { TestResultCard } from "@/features/tests/ui/TestResultCard"
 import { createRecommendations } from "@/features/recommendation/api/createRecommendations"
 import { useAuth } from "@/features/auth/model/useAuth"
+import { changeGrade } from "@/features/profile/api/changeGrade"
 
 export function TestDetailPage() {
     const { userId } = useAuth()
@@ -236,8 +237,15 @@ export function TestDetailPage() {
         try {
             setIsSubmittingFinish(true)
 
+            const completeResponse = await setUserTestSessionComplete({
+                id: sessionId,
+                isComplete: isComplete,
+            })
+
             await Promise.all([
-                setUserTestSessionComplete({ id: sessionId, isComplete: isComplete }),
+                completeResponse.userLevel
+                    ? changeGrade({ userId, grade: completeResponse.userLevel })
+                    : Promise.resolve(),
                 createRecommendations({ userId }),
             ])
 

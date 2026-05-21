@@ -9,6 +9,10 @@ export async function getTests(
     pageSize: String(params.pageSize),
   })
 
+  if (params.topicId) {
+    searchParams.set('topicId', String(params.topicId))
+  }
+
   return apiFetch<PageDto<TestResponse>>(`/tests?${searchParams.toString()}`, {
     service: 'tests',
     method: 'GET',

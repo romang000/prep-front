@@ -6,13 +6,17 @@ export async function getMaterials(
 ): Promise<PageDto<MaterialGetResponse>> {
     const searchParams = new URLSearchParams({
         userId: String(params.userId),
-        topic: params.topic,
+        topicId: String(params.topicId),
         pageNumber: String(params.pageNumber),
         pageSize: String(params.pageSize),
     });
 
     if (params.level) {
         searchParams.set("level", params.level);
+    }
+
+    if (params.subtopic) {
+        searchParams.set("subtopic", params.subtopic);
     }
 
     return apiFetch<PageDto<MaterialGetResponse>>(

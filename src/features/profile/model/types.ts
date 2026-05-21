@@ -3,4 +3,5 @@ export type UserProfile = {
     login: string
     email: string
     grade: "JUNIOR" | "MIDDLE" | "SENIOR" | null
+    learningTrackId: number | null
 }

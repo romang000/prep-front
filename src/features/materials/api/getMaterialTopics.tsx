@@ -14,8 +14,8 @@ export async function getMaterialsTopics(
         searchParams.set("level", params.level);
     }
 
-    if (params.topic) {
-        searchParams.set("topic", params.topic);
+    if (params.learningTrackId) {
+        searchParams.set("learningTrackId", String(params.learningTrackId));
     }
 
     return apiFetch<PageDto<MaterialTopicGetResponse>>(

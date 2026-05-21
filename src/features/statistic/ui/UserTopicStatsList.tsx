@@ -3,7 +3,7 @@ import { TopicStatisticCard } from './TopicStatisticCard'
 
 type Props = {
     statistics: TopicStatisticsResponse[]
-    onTopicClick: (topic: string) => void
+    onTopicClick: (topicId: number, topicTitle: string) => void
 }
 
 export function UserTopicStatsList({ statistics, onTopicClick }: Props) {
@@ -19,7 +19,7 @@ export function UserTopicStatsList({ statistics, onTopicClick }: Props) {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {statistics.map((statistic) => (
                 <TopicStatisticCard
-                    key={statistic.topic}
+                    key={statistic.topicId}
                     statistic={statistic}
                     onClick={onTopicClick}
                 />

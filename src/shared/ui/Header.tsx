@@ -6,6 +6,7 @@ type HeaderProps = {
 export function Header({title, description}: HeaderProps) {
     return (
         <div className="mb-8 border-b border-slate-200 pb-6">
+            <div className="mb-4 h-1 w-16 rounded-full bg-emerald-400" />
             <h1 className="max-w-4xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
                 {title}
             </h1>

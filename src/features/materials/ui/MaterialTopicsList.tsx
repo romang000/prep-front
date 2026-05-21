@@ -3,7 +3,7 @@ import type { MaterialTopicGetResponse } from "../model/types"
 
 type MaterialTopicsListProps = {
     topics: MaterialTopicGetResponse[]
-    onTopicClick: (topic: string) => void
+    onTopicClick: (topic: MaterialTopicGetResponse) => void
 }
 
 export function MaterialTopicsList({
@@ -29,8 +29,8 @@ export function MaterialTopicsList({
             {topics.map((topic) => (
                 <MaterialTopicCard
                     key={topic.id}
-                    topic={topic.topic}
-                    onClick={() => onTopicClick(topic.topic)}
+                    topic={topic.topicTitle}
+                    onClick={() => onTopicClick(topic)}
                 />
             ))}
         </div>

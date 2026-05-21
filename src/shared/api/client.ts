@@ -11,6 +11,8 @@ type ApiFetchOptions = RequestInit & {
   service: ApiServiceName
 }
 
+let refreshRequest: Promise<void> | null = null
+
 export async function apiFetch<T>(
   path: string,
   options: ApiFetchOptions,
@@ -18,31 +20,31 @@ export async function apiFetch<T>(
   return requestWithAuth<T>(path, options, true)
 }
 
+export async function apiFetchBlob(
+  path: string,
+  options: ApiFetchOptions,
+): Promise<Response> {
+  return requestBlobWithAuth(path, options, true)
+}
+
 async function requestWithAuth<T>(
   path: string,
   options: ApiFetchOptions,
   canRefresh: boolean,
 ): Promise<T> {
-  const { service, headers, ...restOptions } = options
   const accessToken = getAccessToken()
-
-  const response = await fetch(`${API_URLS[service]}${path}`, {
-    ...restOptions,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      ...headers,
-    },
-  })
+  const response = await fetchWithAuth(path, options, accessToken)
 
   if (response.status === 401 && canRefresh) {
+    if (accessToken !== getAccessToken()) {
+      return requestWithAuth<T>(path, options, false)
+    }
+
     const refreshToken = getRefreshToken()
 
     if (refreshToken) {
       try {
-        const tokens = await refreshTokens(refreshToken)
-
-        setAuthTokens(tokens)
+        await refreshAuthTokens(refreshToken)
 
         return requestWithAuth<T>(path, options, false)
       } catch {
@@ -60,4 +62,69 @@ async function requestWithAuth<T>(
   }
 
   return response.json() as Promise<T>
+}
+
+async function requestBlobWithAuth(
+  path: string,
+  options: ApiFetchOptions,
+  canRefresh: boolean,
+): Promise<Response> {
+  const accessToken = getAccessToken()
+  const response = await fetchWithAuth(path, options, accessToken)
+
+  if (response.status === 401 && canRefresh) {
+    if (accessToken !== getAccessToken()) {
+      return requestBlobWithAuth(path, options, false)
+    }
+
+    const refreshToken = getRefreshToken()
+
+    if (refreshToken) {
+      try {
+        await refreshAuthTokens(refreshToken)
+
+        return requestBlobWithAuth(path, options, false)
+      } catch {
+        clearAuthTokens()
+      }
+    }
+  }
+
+  if (!response.ok) {
+    throw new Error(`Ошибка запроса: ${response.status}`)
+  }
+
+  return response
+}
+
+function fetchWithAuth(
+  path: string,
+  options: ApiFetchOptions,
+  accessToken = getAccessToken(),
+) {
+  const { service, headers, ...restOptions } = options
+  const isFormData = restOptions.body instanceof FormData
+
+  return fetch(`${API_URLS[service]}${path}`, {
+    ...restOptions,
+    headers: {
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...headers,
+    },
+  })
+}
+
+async function refreshAuthTokens(refreshToken: string) {
+  if (!refreshRequest) {
+    refreshRequest = refreshTokens(refreshToken)
+      .then((tokens) => {
+        setAuthTokens(tokens)
+      })
+      .finally(() => {
+        refreshRequest = null
+      })
+  }
+
+  return refreshRequest
 }
