@@ -31,3 +31,23 @@ export type MaterialCreateResponse = {
     materialId: number
     fileId: number
 }
+
+export type TopicCreateRequest = {
+    title: string
+    description?: string
+}
+
+export type TopicUpdateRequest = TopicCreateRequest
+
+export type LearningTrackCreateRequest = {
+    code: string
+    title: string
+    description?: string
+    topics?: number[]
+}
+
+export type LearningTrackUpdateRequest = LearningTrackCreateRequest
+
+export type TitlesByIdsResponse = {
+    title: string[]
+}

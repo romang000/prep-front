@@ -54,7 +54,7 @@ async function requestWithAuth<T>(
   }
 
   if (!response.ok) {
-    throw new Error(`Ошибка запроса: ${response.status}`)
+    throw new Error(await getApiErrorMessage(response))
   }
 
   if (response.status === 204) {
@@ -91,7 +91,7 @@ async function requestBlobWithAuth(
   }
 
   if (!response.ok) {
-    throw new Error(`Ошибка запроса: ${response.status}`)
+    throw new Error(await getApiErrorMessage(response))
   }
 
   return response
@@ -127,4 +127,42 @@ async function refreshAuthTokens(refreshToken: string) {
   }
 
   return refreshRequest
+}
+
+async function getApiErrorMessage(response: Response) {
+  const fallbackMessage = `Ошибка запроса: ${response.status}`
+
+  try {
+    const responseText = await response.text()
+
+    if (!responseText) {
+      return fallbackMessage
+    }
+
+    try {
+      const errorBody = JSON.parse(responseText) as unknown
+      const serverMessage = extractServerMessage(errorBody)
+
+      return serverMessage || fallbackMessage
+    } catch {
+      return responseText
+    }
+  } catch {
+    return fallbackMessage
+  }
+}
+
+function extractServerMessage(errorBody: unknown): string | null {
+  if (typeof errorBody === 'string') {
+    return errorBody
+  }
+
+  if (!errorBody || typeof errorBody !== 'object') {
+    return null
+  }
+
+  const body = errorBody as Record<string, unknown>
+  const message = body.message ?? body.error ?? body.detail ?? body.title
+
+  return typeof message === 'string' && message.trim() ? message : null
 }
