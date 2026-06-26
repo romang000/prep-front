@@ -13,6 +13,10 @@ export async function getTests(
     searchParams.set('topicId', String(params.topicId))
   }
 
+  if (params.grade) {
+    searchParams.set('grade', params.grade)
+  }
+
   return apiFetch<PageDto<TestResponse>>(`/tests?${searchParams.toString()}`, {
     service: 'tests',
     method: 'GET',

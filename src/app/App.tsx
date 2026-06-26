@@ -9,6 +9,7 @@ import { MaterialTopicsPage } from "@/pages/MaterialTopicsPage";
 import { StatisticsPage } from "@/pages/StatisticsPage";
 import { TestDetailPage } from "@/pages/TestDetailPage";
 import { TestsPage } from "@/pages/TestsPage";
+import { ReadinessPage } from "@/features/readiness/ui/ReadinessPage";
 import { ProfilePage } from "@/features/profile/ui/ProfilePage";
 import { AdminPage } from "@/features/admin/ui/AdminPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/materials/:materialId" element={<MaterialDetailPage />} />
             <Route path="/materials/:materialId/files/:fileId" element={<MaterialDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/readiness" element={<ReadinessPage />} />
             <Route path="/statistics/users/:id" element={<StatisticsPage />} />
           </Route>
         </Routes>

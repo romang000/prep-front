@@ -1,22 +1,17 @@
 import { Header } from "@/shared/ui/Header"
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
+import { Sidebar } from "@/shared/ui/Sidebar"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "@/features/auth/model/useAuth"
 import { ErrorLoad } from "@/shared/ui/ErrorLoad"
 import { TopBar } from "@/shared/ui/TopBar"
+import { getMainMenuItems } from "@/shared/navigation/menuItems"
 
 export function MainPage() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const { userId } = useAuth()
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     if (userId === null) {
         return <ErrorLoad message="Не удалось определить пользователя из JWT токена." />

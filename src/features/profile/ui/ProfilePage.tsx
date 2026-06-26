@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
+import { Sidebar } from "@/shared/ui/Sidebar"
 import { TopBar } from "@/shared/ui/TopBar"
 import { Header } from "@/shared/ui/Header"
 import { Loader } from "@/shared/ui/Loader"
@@ -8,6 +8,7 @@ import { getLearningTracks } from "@/features/learningTracks/api/getLearningTrac
 import { getProfile } from "../api/getProfile"
 import type { UserProfile } from "../model/types"
 import { useAuth } from "@/features/auth/model/useAuth"
+import { getMainMenuItems } from "@/shared/navigation/menuItems"
 
 export function ProfilePage() {
     const { userId } = useAuth()
@@ -17,13 +18,7 @@ export function ProfilePage() {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     useEffect(() => {
         async function loadProfile() {

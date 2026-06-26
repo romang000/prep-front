@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Loader } from "@/shared/ui/Loader"
 import { ErrorLoad } from "@/shared/ui/ErrorLoad"
 import { Header } from "@/shared/ui/Header"
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
+import { Sidebar } from "@/shared/ui/Sidebar"
 import type {
     SubtopicStatisticsResponse,
     TopicStatisticsResponse,
@@ -14,17 +14,12 @@ import { UserSubtopicStatsList } from "@/features/statistic/ui/UserSubtopicStats
 import { RecommendationPanel } from "@/features/recommendation/ui/RecommendationPanel"
 import { useAuth } from "@/features/auth/model/useAuth"
 import { TopBar } from "@/shared/ui/TopBar"
+import { getMainMenuItems } from "@/shared/navigation/menuItems"
 
 export function StatisticsPage() {
     const { userId } = useAuth()
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false)

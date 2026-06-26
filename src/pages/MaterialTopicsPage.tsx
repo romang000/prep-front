@@ -1,5 +1,5 @@
 import { Header } from "@/shared/ui/Header"
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
+import { Sidebar } from "@/shared/ui/Sidebar"
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Loader } from "@/shared/ui/Loader"
@@ -13,6 +13,7 @@ import { TopBar } from "@/shared/ui/TopBar"
 import { getProfile } from "@/features/profile/api/getProfile"
 import { getLearningTracks } from "@/features/learningTracks/api/getLearningTracks"
 import type { LearningTrack } from "@/features/learningTracks/model/types"
+import { getMainMenuItems } from "@/shared/navigation/menuItems"
 
 const LEVEL_OPTIONS = [
     { label: "Все уровни", value: "" },
@@ -25,18 +26,12 @@ export function MaterialTopicsPage() {
     const navigate = useNavigate()
     const { userId } = useAuth()
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [pageNumber, setPageNumber] = useState(0)
     const [pageSize] = useState(10)
-    const [selectedLevel, setSelectedLevel] = useState("JUNIOR")
+    const [selectedLevel, setSelectedLevel] = useState("")
     const [selectedLearningTrackId, setSelectedLearningTrackId] = useState("")
     const [learningTracks, setLearningTracks] = useState<LearningTrack[]>([])
     const [isFiltersLoading, setIsFiltersLoading] = useState(true)
@@ -71,12 +66,14 @@ export function MaterialTopicsPage() {
                 ])
 
                 setLearningTracks(learningTracks)
+                setSelectedLevel(profile.grade ?? "")
                 setSelectedLearningTrackId(
                     profile.learningTrackId ? String(profile.learningTrackId) : "",
                 )
             } catch (e) {
                 console.error("Ошибка при загрузке фильтров материалов", e)
                 setLearningTracks([])
+                setSelectedLevel("")
                 setSelectedLearningTrackId("")
             } finally {
                 setIsFiltersLoading(false)

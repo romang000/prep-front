@@ -1,11 +1,11 @@
 import { getTests } from "@/features/tests/api/getTests";
-import type { PageDto, TestResponse } from "@/features/tests/model/types";
+import type { PageDto, TestGrade, TestResponse } from "@/features/tests/model/types";
 import { TestsList } from "@/features/tests/ui/TestsList";
 import { ErrorLoad } from "@/shared/ui/ErrorLoad";
 import { Header } from "@/shared/ui/Header";
 import { Loader } from "@/shared/ui/Loader";
 import { Pagination } from "@/shared/ui/Pagination";
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar";
+import { Sidebar } from "@/shared/ui/Sidebar";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/model/useAuth";
 import { TopBar } from "@/shared/ui/TopBar";
@@ -13,21 +13,24 @@ import { getProfile } from "@/features/profile/api/getProfile";
 import { getLearningTracks } from "@/features/learningTracks/api/getLearningTracks";
 import { getTopics } from "@/features/topics/api/getTopics";
 import type { Topic } from "@/features/topics/model/types";
+import { getMainMenuItems } from "@/shared/navigation/menuItems";
+
+const GRADE_OPTIONS: { label: string; value: "" | TestGrade }[] = [
+    { label: "Все уровни", value: "" },
+    { label: "Junior", value: "JUNIOR" },
+    { label: "Middle", value: "MIDDLE" },
+    { label: "Senior", value: "SENIOR" },
+];
 
 export function TestsPage() {
     const { userId } = useAuth()
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     const [pageNumber, setPageNumber] = useState(0);
     const [pageSize] = useState(6);
     const [selectedTopicId, setSelectedTopicId] = useState("");
+    const [selectedGrade, setSelectedGrade] = useState<"" | TestGrade>("");
     const [topics, setTopics] = useState<Topic[]>([]);
     const [isFiltersLoading, setIsFiltersLoading] = useState(true);
 
@@ -57,10 +60,12 @@ export function TestsPage() {
 
                 setTopics(topicsPage.content);
                 setSelectedTopicId(defaultTopicId ? String(defaultTopicId) : "");
+                setSelectedGrade(profile.grade ?? "");
             } catch (e) {
                 console.error("Ошибка при загрузке фильтров тестов", e);
                 setTopics([]);
                 setSelectedTopicId("");
+                setSelectedGrade("");
             } finally {
                 setIsFiltersLoading(false);
             }
@@ -83,6 +88,7 @@ export function TestsPage() {
                     pageNumber,
                     pageSize,
                     topicId: selectedTopicId ? Number(selectedTopicId) : undefined,
+                    grade: selectedGrade || undefined,
                 });
                 setData(response);
             } catch (e) {
@@ -94,10 +100,15 @@ export function TestsPage() {
         }
 
         loadTests();
-    }, [pageNumber, pageSize, selectedTopicId, isFiltersLoading]);
+    }, [pageNumber, pageSize, selectedTopicId, selectedGrade, isFiltersLoading]);
 
     function handleTopicChange(topicId: string) {
         setSelectedTopicId(topicId);
+        setPageNumber(0);
+    }
+
+    function handleGradeChange(grade: "" | TestGrade) {
+        setSelectedGrade(grade);
         setPageNumber(0);
     }
 
@@ -124,7 +135,7 @@ export function TestsPage() {
                         description="Все доступные тесты для подготовки к собеседованиям. Выбирайте и начинайте практиковаться прямо сейчас!"
                     />
 
-                    <div className="mb-8 max-w-xs rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-8 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-2">
                         <label className="block">
                             <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
                                 Тема
@@ -141,6 +152,25 @@ export function TestsPage() {
                                 {topics.map((topic) => (
                                     <option key={topic.id} value={topic.id}>
                                         {topic.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase text-slate-500">
+                                Уровень сложности
+                            </span>
+                            <select
+                                value={selectedGrade}
+                                onChange={(event) =>
+                                    handleGradeChange(event.target.value as "" | TestGrade)
+                                }
+                                className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 shadow-sm shadow-slate-950/5 transition hover:border-slate-400 focus:border-slate-500 focus:outline-none"
+                            >
+                                {GRADE_OPTIONS.map((option) => (
+                                    <option key={option.value || "all"} value={option.value}>
+                                        {option.label}
                                     </option>
                                 ))}
                             </select>

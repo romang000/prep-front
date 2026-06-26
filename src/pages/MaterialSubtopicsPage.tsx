@@ -1,6 +1,6 @@
 import { Header } from "@/shared/ui/Header"
-import { Sidebar, type MenuItem } from "@/shared/ui/Sidebar"
-import { useEffect, useMemo, useState } from "react"
+import { Sidebar } from "@/shared/ui/Sidebar"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Loader } from "@/shared/ui/Loader"
 import { Pagination } from "@/shared/ui/Pagination"
@@ -10,6 +10,8 @@ import type { MaterialGetResponse, PageDto } from "@/features/materials/model/ty
 import { MaterialSubtopicsList } from "@/features/materials/ui/MaterialSubtopicsList"
 import { useAuth } from "@/features/auth/model/useAuth"
 import { TopBar } from "@/shared/ui/TopBar"
+import { getMainMenuItems } from "@/shared/navigation/menuItems"
+import { getProfile } from "@/features/profile/api/getProfile"
 
 const LEVEL_OPTIONS = [
     { label: "Все уровни", value: "" },
@@ -25,26 +27,58 @@ export function MaterialSubtopicsPage() {
     const { userId } = useAuth()
 
     const selectedTopicId = topicId ? Number(topicId) : NaN
+    const levelFromSearch = searchParams.get("level")
     const selectedTopicTitle = searchParams.get("title") ?? "Материалы"
 
-    const menuItems: MenuItem[] = [
-        { label: "Главная", to: "/" },
-        { label: "Тесты", to: "/tests" },
-        { label: "Материалы", to: "/materials" },
-        { label: "Статистика по темам", to: `/statistics/users/${userId ?? ""}` },
-        { label: "Профиль", to: "/profile" },
-    ]
+    const menuItems = getMainMenuItems(userId)
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [pageNumber, setPageNumber] = useState(0)
     const [pageSize] = useState(10)
-    const [selectedLevel, setSelectedLevel] = useState(searchParams.get("level") ?? "JUNIOR")
+    const [selectedLevel, setSelectedLevel] = useState(levelFromSearch ?? "")
+    const [isFiltersLoading, setIsFiltersLoading] = useState(true)
+    const hasInitializedLevel = useRef(false)
 
     const [data, setData] = useState<PageDto<MaterialGetResponse> | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
+        if (hasInitializedLevel.current) {
+            return
+        }
+
+        hasInitializedLevel.current = true
+
+        if (levelFromSearch !== null) {
+            setSelectedLevel(levelFromSearch)
+            setIsFiltersLoading(false)
+            return
+        }
+
+        const loadProfileLevel = async () => {
+            try {
+                setIsFiltersLoading(true)
+
+                const profile = await getProfile()
+
+                setSelectedLevel(profile.grade ?? "")
+            } catch (e) {
+                console.error("Ошибка при загрузке уровня пользователя", e)
+                setSelectedLevel("")
+            } finally {
+                setIsFiltersLoading(false)
+            }
+        }
+
+        loadProfileLevel()
+    }, [levelFromSearch])
+
+    useEffect(() => {
+        if (isFiltersLoading) {
+            return
+        }
+
         if (Number.isNaN(selectedTopicId)) {
             setError("Тема материала не указана.")
             setIsLoading(false)
@@ -80,7 +114,7 @@ export function MaterialSubtopicsPage() {
         }
 
         loadSubtopics()
-    }, [selectedTopicId, pageNumber, pageSize, selectedLevel, userId])
+    }, [selectedTopicId, pageNumber, pageSize, selectedLevel, userId, isFiltersLoading])
 
     const subtopicMaterials = useMemo(() => {
         const materials = data?.content ?? []
@@ -170,13 +204,13 @@ export function MaterialSubtopicsPage() {
                     </div>
 
                     <div className="mt-8">
-                        {isLoading && <Loader />}
+                        {(isFiltersLoading || isLoading) && <Loader />}
 
-                        {!isLoading && error && (
+                        {!isFiltersLoading && !isLoading && error && (
                             <ErrorLoad message={error} />
                         )}
 
-                        {!isLoading && !error && (
+                        {!isFiltersLoading && !isLoading && !error && (
                             <MaterialSubtopicsList
                                 materials={subtopicMaterials}
                                 userId={userId}
@@ -186,7 +220,7 @@ export function MaterialSubtopicsPage() {
                     </div>
                 </div>
 
-                {!isLoading && !error && data && (
+                {!isFiltersLoading && !isLoading && !error && data && (
                     <Pagination
                         pageNumber={data.pageNumber}
                         totalPages={data.totalPages}
